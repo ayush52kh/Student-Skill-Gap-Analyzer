@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Skill Gap Analyzer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Student Skill Gap Analyzer</h1>
+        <p>A simple way to understand your skills and decide what to practice next.</p>
+    </header>
+
+    <main>
+        <section class="intro">
+            <h2>Start with what you know</h2>
+            <p>Rate each skill from 1 to 5. Your results will show your strengths and areas to improve.</p>
+            <a class="button" href="#assessment">Start assessment</a>
+        </section>
+
+        <form id="assessment">
+            <h2>Student information</h2>
+            <div class="student-details">
+                <label>
+                    Student name
+                    <input id="studentName" type="text" maxlength="60" required>
+                </label>
+
+                <label>
+                    Course / branch
+                    <select id="course" required>
+                        <option value="">Select a course</option>
+                        <option>Python</option>
+                        <option>Web Development</option>
+                        <option>Artificial Intelligence</option>
+                        <option>Machine Learning</option>
+                        <option>SQL DataBase</option>
+                        <option>Other</option>
+                    </select>
+                </label>
+
+                <label>
+                    Semester
+                    <select id="semester" required>
+                        <option value="">Select a semester</option>
+                        <option>Semester 1</option>
+                        <option>Semester 2</option>
+                        <option>Semester 3</option>
+                        <option>Semester 4</option>
+                        <option>Semester 5</option>
+                        <option>Semester 6</option>
+                        <option>Semester 7</option>
+                        <option>Semester 8</option>
+                    </select>
+                </label>
+            </div>
+
+            <h2>Rate your skills</h2>
+            <p class="hint">1 = Need practice &nbsp; | &nbsp; 5 = Very confident</p>
+            <div id="skillQuestions"></div>
+
+            <button type="submit">Show my results</button>
+        </form>
+
+        <section id="results" class="results" hidden>
+            <h2>Assessment results</h2>
+            <p id="studentSummary"></p>
+            <p id="overallScore" class="score"></p>
+            <div id="skillResults"></div>
+
+            <h3>Suggestions for practice</h3>
+            <ul id="recommendations"></ul>
+
+            <div class="result-buttons">
+                <button id="printButton" type="button">Print / save report</button>
+                <button id="resetButton" class="reset-button" type="button">Reset assessment</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Student Skill Gap Analyzer · A learning project</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
