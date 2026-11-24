@@ -34,6 +34,199 @@ const skills = [
 
 const targetRating = 4;
 const storageName = "studentSkillAssessment";
+const learningStorageName = "studentLearningProgress";
+const dailyLearningTasks = [
+    "Practice a short coding exercise",
+    "Explain a topic in your own words",
+    "Break a problem into smaller steps",
+    "Review a course topic",
+    "Learn or study with someone",
+    "Plan your study time"
+];
+
+let learningProgress = {};
+
+function getLocalDateString(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return year + "-" + month + "-" + day;
+}
+
+function getDateFromInput(value) {
+    const parts = value.split("-").map(Number);
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
+function getTasksForDate(dateString) {
+    if (!Array.isArray(learningProgress[dateString])) {
+        learningProgress[dateString] = dailyLearningTasks.map(function () {
+            return false;
+        });
+    }
+
+    return dailyLearningTasks.map(function (task, index) {
+        return learningProgress[dateString][index] === true;
+    });
+}
+
+function renderProgressGraph(date) {
+    const graph = document.getElementById("progressGraph");
+    const dayNumber = date.getDate();
+    graph.innerHTML = "";
+
+    for (let day = 1; day <= dayNumber; day++) {
+        const dateString = getLocalDateString(
+            new Date(date.getFullYear(), date.getMonth(), day)
+        );
+        const completed = getTasksForDate(dateString).filter(Boolean).length;
+        const percentage = (completed / dailyLearningTasks.length) * 100;
+        const column = document.createElement("div");
+        const barArea = document.createElement("div");
+        const bar = document.createElement("div");
+        const dayLabel = document.createElement("span");
+
+        column.className = "chart-day";
+        barArea.className = "chart-bar-area";
+        bar.className = "chart-bar";
+        bar.style.height = percentage + "%";
+        bar.title = "Day " + day + ": " + completed + " of " +
+            dailyLearningTasks.length + " tasks";
+        dayLabel.className = "chart-day-label";
+        dayLabel.textContent = day;
+
+        barArea.appendChild(bar);
+        column.appendChild(barArea);
+        column.appendChild(dayLabel);
+        graph.appendChild(column);
+    }
+}
+
+function renderDashboard() {
+    const dateInput = document.getElementById("checklistDate");
+    const selectedDate = getDateFromInput(dateInput.value);
+    const selectedDateString = dateInput.value;
+    const selectedTasks = getTasksForDate(selectedDateString);
+    const dailyTaskList = document.getElementById("dailyTasks");
+    const selectedMonth = selectedDate.getMonth();
+    const selectedYear = selectedDate.getFullYear();
+    const dayNumber = selectedDate.getDate();
+    let monthlyCompleted = 0;
+    const completedBySkill = skills.map(function () {
+        return 0;
+    });
+
+    dailyTaskList.innerHTML = "";
+
+    dailyLearningTasks.forEach(function (task, index) {
+        const item = document.createElement("li");
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = selectedTasks[index];
+        checkbox.dataset.taskIndex = index;
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(task));
+        item.appendChild(label);
+        dailyTaskList.appendChild(item);
+    });
+
+    for (let day = 1; day <= dayNumber; day++) {
+        const dateString = getLocalDateString(new Date(selectedYear, selectedMonth, day));
+        const completedTasks = getTasksForDate(dateString);
+
+        completedTasks.forEach(function (isComplete, index) {
+            if (isComplete) {
+                monthlyCompleted++;
+                completedBySkill[index]++;
+            }
+        });
+    }
+
+    const monthlyPossible = dayNumber * dailyLearningTasks.length;
+    const monthlyPercentage = Math.round((monthlyCompleted / monthlyPossible) * 100);
+    document.getElementById("monthlyProgress").textContent = monthlyPercentage + "%";
+    document.getElementById("monthlyTaskCount").textContent =
+        monthlyCompleted + " of " + monthlyPossible + " tasks completed";
+
+    const weekStart = new Date(selectedYear, selectedMonth, dayNumber);
+    const weekday = (weekStart.getDay() + 6) % 7;
+    weekStart.setDate(weekStart.getDate() - weekday);
+    const weeklyTaskList = document.getElementById("weeklyTasks");
+    const completedThisWeek = [];
+    let daysInSelectedWeek = 0;
+
+    for (let day = new Date(weekStart); day <= selectedDate; day.setDate(day.getDate() + 1)) {
+        daysInSelectedWeek++;
+        const dateString = getLocalDateString(day);
+        const completedTasks = getTasksForDate(dateString);
+
+        completedTasks.forEach(function (isComplete, index) {
+            if (isComplete) {
+                completedThisWeek.push(
+                    dateString + " - " + dailyLearningTasks[index]
+                );
+            }
+        });
+    }
+
+    const weeklyPossible = daysInSelectedWeek * dailyLearningTasks.length;
+    const weeklyPercentage = Math.round((completedThisWeek.length / weeklyPossible) * 100);
+    document.getElementById("weeklyProgress").textContent = weeklyPercentage + "%";
+    document.getElementById("weeklyTaskCount").textContent =
+        completedThisWeek.length + " of " + weeklyPossible + " tasks completed";
+    weeklyTaskList.innerHTML = "";
+
+    if (completedThisWeek.length === 0) {
+        const emptyItem = document.createElement("li");
+        emptyItem.textContent = "No tasks completed yet this week.";
+        weeklyTaskList.appendChild(emptyItem);
+    } else {
+        completedThisWeek.forEach(function (task) {
+            const item = document.createElement("li");
+            item.textContent = task;
+            weeklyTaskList.appendChild(item);
+        });
+    }
+
+    const skillProgress = document.getElementById("skillProgress");
+    skillProgress.innerHTML = "";
+    skills.forEach(function (skill, index) {
+        const percentage = Math.round((completedBySkill[index] / dayNumber) * 100);
+        const row = document.createElement("div");
+        row.className = "skill-progress-row";
+        const label = document.createElement("span");
+        label.textContent = skill.name + " - " + percentage + "%";
+        const progressBar = document.createElement("div");
+        progressBar.className = "progress-bar";
+        const progress = document.createElement("div");
+        progress.className = "progress";
+        progress.style.width = percentage + "%";
+        progressBar.appendChild(progress);
+        row.appendChild(label);
+        row.appendChild(progressBar);
+        skillProgress.appendChild(row);
+    });
+
+    renderProgressGraph(selectedDate);
+}
+
+function loadLearningProgress() {
+    const savedProgress = localStorage.getItem(learningStorageName);
+    if (savedProgress) {
+        try {
+            const parsedProgress = JSON.parse(savedProgress);
+            if (parsedProgress && typeof parsedProgress === "object" &&
+                !Array.isArray(parsedProgress)) {
+                learningProgress = parsedProgress;
+            } else {
+                console.error("Saved learning progress has an unexpected format.");
+            }
+        } catch (error) {
+            console.error("Could not read saved learning progress.", error);
+        }
+    }
+}
 
 // Add five rating choices for each skill.
 function showQuestions() {
@@ -134,6 +327,26 @@ document.getElementById("assessment").addEventListener("submit", function (event
 
 // Add the questions before restoring any saved ratings.
 showQuestions();
+
+// Restore and display the learning checklist.
+loadLearningProgress();
+const checklistDate = document.getElementById("checklistDate");
+checklistDate.value = getLocalDateString(new Date());
+checklistDate.max = checklistDate.value;
+renderDashboard();
+
+checklistDate.addEventListener("change", renderDashboard);
+document.getElementById("dailyTasks").addEventListener("change", function (event) {
+    const taskIndex = Number(event.target.dataset.taskIndex);
+    if (Number.isInteger(taskIndex) && taskIndex >= 0 &&
+        taskIndex < dailyLearningTasks.length) {
+        const tasks = getTasksForDate(checklistDate.value);
+        tasks[taskIndex] = event.target.checked;
+        learningProgress[checklistDate.value] = tasks;
+        localStorage.setItem(learningStorageName, JSON.stringify(learningProgress));
+        renderDashboard();
+    }
+});
 
 // Restore the last report when the page is opened again.
 const savedAssessment = localStorage.getItem(storageName);

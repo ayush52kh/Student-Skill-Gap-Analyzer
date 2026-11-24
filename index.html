@@ -19,6 +19,63 @@
             <a class="button" href="#assessment">Start assessment</a>
         </section>
 
+        <section class="dashboard" aria-labelledby="dashboardTitle">
+            <h2 id="dashboardTitle">Learning dashboard</h2>
+            <p>Track a little practice each day and see your progress add up.</p>
+
+            <div class="dashboard-stats">
+                <article class="stat-card">
+                    <h3>Monthly progress</h3>
+                    <p id="monthlyProgress">0%</p>
+                    <span id="monthlyTaskCount">0 tasks completed</span>
+                </article>
+                <article class="stat-card">
+                    <h3>This week</h3>
+                    <p id="weeklyProgress">0%</p>
+                    <span id="weeklyTaskCount">0 tasks completed</span>
+                </article>
+            </div>
+
+            <div class="checklist">
+                <div class="checklist-heading">
+                    <div>
+                        <h3>Monthly checklist</h3>
+                        <p>Choose a day and check off the tasks you complete.</p>
+                    </div>
+                    <label for="checklistDate">Day
+                        <input id="checklistDate" type="date">
+                    </label>
+                </div>
+                <ul id="dailyTasks" class="task-list"></ul>
+            </div>
+
+            <div class="progress-chart">
+                <h3>Progress over time</h3>
+                <p>Daily task completion for the selected month.</p>
+                <div class="chart-container">
+                    <div class="chart-scale" aria-hidden="true">
+                        <span>100%</span>
+                        <span>50%</span>
+                        <span>0%</span>
+                    </div>
+                    <div class="chart-scroll">
+                        <div id="progressGraph" class="chart-bars" role="img"
+                            aria-label="Daily learning task completion bar chart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="weekly-summary">
+                <h3>Completed tasks this week</h3>
+                <ul id="weeklyTasks"></ul>
+            </div>
+
+            <div class="skill-progress">
+                <h3>Skill development this month</h3>
+                <div id="skillProgress"></div>
+            </div>
+        </section>
+
         <form id="assessment">
             <h2>Student information</h2>
             <div class="student-details">
